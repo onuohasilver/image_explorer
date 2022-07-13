@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
@@ -16,7 +17,7 @@ class Network {
           Uri.parse(const Api.dev().host + url),
           headers: _generateHeaders(token),
           body: jsonEncode(body));
-
+      log(response.body);
       if ([201, 200].contains(response.statusCode)) return response;
       throw (CustomResponse(false, jsonDecode(response.body)['message']));
     } on SocketException {
@@ -32,8 +33,10 @@ class Network {
       http.Response response = await client.get(
           Uri.parse(const Api.dev().host + url),
           headers: _generateHeaders(token));
+
       if ([201, 200].contains(response.statusCode)) return response;
-      throw (CustomResponse(false, jsonDecode(response.body)['message']));
+      print(response.statusCode);
+      throw (CustomResponse(false, "An unexpected error occured"));
     } on SocketException {
       throw (CustomResponse(false, 'Network time out'));
     } catch (e) {
@@ -58,7 +61,6 @@ _generateHeaders(String? token, {bool withFile = false}) {
           'Authorization': token
         }
       : {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          'Accept': '*/*',
         };
 }
