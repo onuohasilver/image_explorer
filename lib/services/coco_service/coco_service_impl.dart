@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:http/http.dart' as http;
 import 'package:image_explorer/core/core.dart';
 import 'package:image_explorer/services/coco_service/coco_service.dart';
@@ -15,8 +17,11 @@ class CocoServiceImpl extends CocoService {
     List<String> bodyList = response.body.split("var").sublist(3, 7);
     Map<String, dynamic> bodyResponse = {};
     for (var element in bodyList) {
-      bodyResponse[element.split("=").first] = element.split("=").last;
+      bodyResponse[element.split("=").first.trim()] =
+          element.split("=").last.replaceAll("'", "");
+          
     }
+    // log(bodyResponse.toString());
     return bodyResponse;
   }
 }

@@ -4,18 +4,19 @@ import 'package:flutter/material.dart';
 
 class SearchController extends ChangeNotifier {
   TextEditingController textEditingController = TextEditingController();
+
   Set<String> results = {};
   String? searchText;
 
-  void onSearchInputChanged(String value) {
+  void onSearchInputChanged(String value, List<String> categories) {
     log("Value: $value,Length ${value.length}");
-    if (value.replaceAll("\u200b", "").isEmpty) {
+    if (value.replaceAll("\u200b", "").isEmpty && results.isNotEmpty) {
       log("Backspace");
       deleteChip();
     }
     if (_checkForTerminatingCharacter(value)) {
       log('Terminating Space Found');
-      searchCategories(value);
+      searchCategories(value, categories);
       _resetTextEditingController(value);
       log(textEditingController.text);
     }
@@ -24,6 +25,11 @@ class SearchController extends ChangeNotifier {
     log("${searchText?.length}");
 
     notifyListeners();
+  }
+
+  void updateSearchResults(String value, List<String> categories) {
+    searchCategories(value, categories);
+    _resetTextEditingController(value);
   }
 
   /*
@@ -60,17 +66,25 @@ class SearchController extends ChangeNotifier {
   /*
   Search Categories
   */
-  searchCategories(String value) {
-    String searchResult = categories.firstWhere(
-        (element) => element
-            .trim()
-            .toLowerCase()
-            .startsWith(value.replaceAll("\u200b", "").trim().toLowerCase()),
-        orElse: (() => 'Null'));
+  searchCategories(String value, List categories) {
+    log("Searching for $value");
+    List catToWatch = [...categories];
+    catToWatch.removeWhere((element) => results.contains(element));
+    String searchResult = categories.firstWhere((element) {
+      // log(element);
+      return element
+          .trim()
+          .toLowerCase()
+          .startsWith(value.replaceAll("\u200b", "").trim().toLowerCase());
+    }, orElse: (() => 'Null'));
 
     log(searchResult);
-    if (searchResult != "Null") results.add(searchResult.trim());
+    if (searchResult != "Null") addToSearchResults(searchResult.trim());
     log(results.toString());
+  }
+
+  void addToSearchResults(String value) {
+    results.add(value);
   }
 
   /*
@@ -84,5 +98,3 @@ class SearchController extends ChangeNotifier {
         "", (previousValue, element) => previousValue + element);
   }
 }
-
-List<String> categories = ['Air', 'Water', 'Fame', 'fat', 'far'];

@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:image_explorer/modules/landing/controllers/coco_controller.dart';
 import 'package:image_explorer/modules/search/controllers/search_controller.dart';
 import 'package:provider/provider.dart';
 
@@ -12,6 +13,7 @@ class SearchBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SearchController controller = Provider.of<SearchController>(context);
+    CocoController cocoController = Provider.of<CocoController>(context);
     return Consumer<SearchController>(builder: (context, __, _) {
       return Container(
         width: double.infinity,
@@ -23,6 +25,7 @@ class SearchBuilder extends StatelessWidget {
         ),
         child: Wrap(
           spacing: 4,
+          runSpacing: 10,
           children: [
             ...List.generate(
                 controller.results.length,
@@ -40,13 +43,14 @@ class SearchBuilder extends StatelessWidget {
               children: [
                 Flexible(
                   child: SizedBox(
-                    width: 300,
+                    width: 60,
                     height: 20,
                     child: TextField(
                       controller: controller.textEditingController,
 
                       onChanged: (_) => {
-                        controller.onSearchInputChanged(_),
+                        controller.onSearchInputChanged(
+                            _, cocoController.categories),
                       },
                       // onSubmitted: (_) =>
                       //     controller.searchCategories(_),
