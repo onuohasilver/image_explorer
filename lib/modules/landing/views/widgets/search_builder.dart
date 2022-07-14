@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:image_explorer/modules/landing/controllers/coco_controller.dart';
 import 'package:image_explorer/modules/search/controllers/search_controller.dart';
@@ -35,7 +33,7 @@ class SearchBuilder extends StatelessWidget {
                           borderRadius: BorderRadius.circular(5),
                           side: const BorderSide(color: Color(0xFFCCCCCC))),
                       label: Text(controller.results.elementAt(index)),
-                      onDeleted: () => log('message'),
+                      onDeleted: () => controller.deleteChipAtIndex(index),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     )),
             Row(

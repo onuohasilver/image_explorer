@@ -16,25 +16,39 @@ class CocoIconsBuilder extends StatelessWidget {
     CocoController cocoController = Provider.of<CocoController>(context);
     SearchController searchController = Provider.of<SearchController>(context);
     return Wrap(
-      runSpacing: 10,
-      spacing: 5,
+      runSpacing: 12,
+      spacing: 12,
       children: List.generate(
         cocoController.categories.length,
         (index) => GestureDetector(
           onTap: () => {
-            searchController.updateSearchResults(
-                cocoController.categories[index], cocoController.categories)
+            if (!searchController
+                .checkIfPresent(cocoController.categories[index].category))
+              {
+                searchController.updateSearchResults(
+                    cocoController.categories[index].category, cocoController.categories)
+              }
+            else
+              {
+                searchController
+                    .deleteChipByValue(cocoController.categories[index].category)
+              }
           },
-          child: [11].contains(index)
-              ? const SizedBox.shrink()
-              : CachedNetworkImage(
-                  imageUrl:
-                      "${Api.cocoIcons}${cocoController.categoryID[index]}.jpg",
-                  width: 30.h,
-                  height: 30.h,
-                  placeholder: (context, url) => Container(),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                ),
+          child: Container(
+            decoration: BoxDecoration(
+                border: searchController.results
+                        .contains(cocoController.categories[index])
+                    ? Border.all(color: Colors.lime, width: 2)
+                    : null),
+            child: CachedNetworkImage(
+              imageUrl:
+                  "${Api.cocoIcons}${cocoController.categories[index].id}.jpg",
+              width: 30.h,
+              height: 30.h,
+              placeholder: (context, url) => Container(),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            ),
+          ),
         ),
       ),
     );

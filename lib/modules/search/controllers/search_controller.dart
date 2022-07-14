@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:image_explorer/modules/landing/models/models.dart';
 
 class SearchController extends ChangeNotifier {
   TextEditingController textEditingController = TextEditingController();
@@ -8,7 +9,7 @@ class SearchController extends ChangeNotifier {
   Set<String> results = {};
   String? searchText;
 
-  void onSearchInputChanged(String value, List<String> categories) {
+  void onSearchInputChanged(String value, List<CategoryModel> categories) {
     log("Value: $value,Length ${value.length}");
     if (value.replaceAll("\u200b", "").isEmpty && results.isNotEmpty) {
       log("Backspace");
@@ -17,7 +18,7 @@ class SearchController extends ChangeNotifier {
     if (_checkForTerminatingCharacter(value)) {
       log('Terminating Space Found');
       searchCategories(value, categories);
-      _resetTextEditingController(value);
+      _resetTextEditingController();
       log(textEditingController.text);
     }
 
@@ -27,9 +28,9 @@ class SearchController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateSearchResults(String value, List<String> categories) {
+  void updateSearchResults(String value, List<CategoryModel> categories) {
     searchCategories(value, categories);
-    _resetTextEditingController(value);
+    _resetTextEditingController();
   }
 
   /*
@@ -39,6 +40,20 @@ class SearchController extends ChangeNotifier {
   void deleteChip() {
     log("Deleting Chip");
     results.remove(results.last);
+  }
+
+  void deleteChipAtIndex(int index) {
+    log("deleting chip by index");
+    results.remove(results.elementAt(index));
+    _resetTextEditingController();
+    notifyListeners();
+  }
+
+  void deleteChipByValue(String value) {
+    log("deleting chip by index");
+    results.remove(value);
+    _resetTextEditingController();
+    notifyListeners();
   }
 
   /*
@@ -51,7 +66,7 @@ class SearchController extends ChangeNotifier {
   /*
   Reset the Text Editing to respond to empty backspace presses 
   */
-  void _resetTextEditingController(value) {
+  void _resetTextEditingController() {
     log('Text Editing Controller Reset');
 
     textEditingController =
@@ -66,17 +81,18 @@ class SearchController extends ChangeNotifier {
   /*
   Search Categories
   */
-  searchCategories(String value, List categories) {
+  searchCategories(String value, List<CategoryModel> categories) {
     log("Searching for $value");
-    List catToWatch = [...categories];
-    catToWatch.removeWhere((element) => results.contains(element));
-    String searchResult = categories.firstWhere((element) {
+    List<CategoryModel> catToWatch = [...categories];
+    catToWatch.removeWhere((element) => results.contains(element.category));
+
+    String searchResult = catToWatch.firstWhere((element) {
       // log(element);
-      return element
+      return element.category
           .trim()
           .toLowerCase()
           .startsWith(value.replaceAll("\u200b", "").trim().toLowerCase());
-    }, orElse: (() => 'Null'));
+    }, orElse: (() => CategoryModel('Null', 'Null'))).category;
 
     log(searchResult);
     if (searchResult != "Null") addToSearchResults(searchResult.trim());
@@ -96,5 +112,9 @@ class SearchController extends ChangeNotifier {
 
     return listCount.fold<String>(
         "", (previousValue, element) => previousValue + element);
+  }
+
+  bool checkIfPresent(String value) {
+    return results.contains(value);
   }
 }
