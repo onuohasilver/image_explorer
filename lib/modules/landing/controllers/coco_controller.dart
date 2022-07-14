@@ -98,3 +98,34 @@ class CocoController extends ChangeNotifier {
     }
   }
 }
+
+// function renderSegms(ctx, img, data) {
+//   var cats = Object.keys(data);
+//   for (var i = 0; i < cats.length; i++) {
+//     // set color for each object
+//     var segms = data[cats[i]];
+//     for (var j = 0; j < segms.length; j++) {
+//       var r = Math.floor(Math.random() * 255);
+//       var g = Math.floor(Math.random() * 255);
+//       var b = Math.floor(Math.random() * 255);
+//       ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',0.7)';
+//       var polys = JSON.parse(segms[j]['segmentation']);
+//       // loop over all polygons
+//       for (var k = 0; k < polys.length; k++) {
+//         var poly = polys[k];
+//         ctx.beginPath();
+//         ctx.moveTo(poly[0], poly[1]);
+//         for (m = 0; m < poly.length - 2; m += 2) {
+//           // let's draw!!!!
+//           ctx.lineTo(poly[m + 2], poly[m + 3]);
+//         }
+//         ctx.lineTo(poly[0], poly[1]);
+//         ctx.lineWidth = 3;
+//         ctx.closePath();
+//         ctx.fill();
+//         ctx.strokeStyle = 'black';
+//         ctx.stroke();
+//       }
+//     }
+//   }
+// }
