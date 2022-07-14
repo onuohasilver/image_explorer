@@ -1,12 +1,14 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_explorer/modules/landing/controllers/coco_controller.dart';
+import 'package:image_explorer/modules/landing/controllers/coco_states.dart';
 import 'package:image_explorer/modules/landing/views/widgets/coco_icons_builder.dart';
 import 'package:image_explorer/modules/landing/views/widgets/search_builder.dart';
-import 'package:image_explorer/modules/search/controllers/search_controller.dart';
+import 'package:image_explorer/modules/landing/views/widgets/single_image_result.dart';
 import 'package:image_explorer/shared_components/shared_components.dart';
 import 'package:provider/provider.dart';
+
+import '../controllers/coco_states.dart';
 
 class Landing extends StatefulWidget {
   const Landing({Key? key}) : super(key: key);
@@ -19,7 +21,7 @@ class _LandingState extends State<Landing> {
   @override
   Widget build(BuildContext context) {
     CocoController cocoController = Provider.of<CocoController>(context);
-    SearchController searchController = Provider.of<SearchController>(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(backgroundColor: Colors.white, elevation: 0),
@@ -51,31 +53,38 @@ class _LandingState extends State<Landing> {
                           style: ButtonStyle(
                               backgroundColor:
                                   MaterialStateProperty.all(Colors.purple)),
-                          onPressed: () => cocoController.query(["8", "9"]),
+                          onPressed: () async {
+                            cocoController.query(["8", "9"]);
+                          },
                           child: const Text("Search")),
                     ),
                     const YSpace(5),
-                    if (cocoController.imageResponse.isNotEmpty)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomText(
-                            "${cocoController.imageResponse.length} results found",
-                            size: 12,
-                            color: Colors.grey,
-                          ),
-                          const YSpace(12),
-                          Container(
-                            child: CachedNetworkImage(
-                              imageUrl: cocoController.imageResponse.first,
-                              // width: 70.h,
-                              // height: 70.h,
-                              placeholder: (context, url) => Container(),
-                              errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error),
+                    if (cocoController.state == CocoState.loading)
+                      const Center(child: CircularProgressIndicator()),
+                    if (cocoController.queryResults.isNotEmpty)
+                      SizedBox(
+                        height: 400.h,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomText(
+                              "${cocoController.queryResults.length} results found",
+                              size: 12,
+                              color: Colors.grey,
                             ),
-                          ),
-                        ],
+                            const YSpace(12),
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount: cocoController.queryResults.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return SingleImageResult(
+                                      model:
+                                          cocoController.queryResults[index]);
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       )
                   ],
                 ),

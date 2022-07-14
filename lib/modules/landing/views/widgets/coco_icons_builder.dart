@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_explorer/core/core.dart';
 import 'package:image_explorer/modules/landing/controllers/coco_controller.dart';
+import 'package:image_explorer/modules/landing/controllers/coco_states.dart';
 import 'package:image_explorer/modules/search/controllers/search_controller.dart';
 import 'package:image_explorer/shared_components/shared_components.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +21,11 @@ class CocoIconsBuilder extends StatelessWidget {
       children: [
         AnimatedContainer(
           duration: const Duration(milliseconds: 100),
-          height: (searchController.isIconCollapsed) ? 130.h : 450.h,
+          height: (searchController.isIconCollapsed ||
+                  (cocoController.queryResults.isNotEmpty ||
+                      cocoController.state != CocoState.idle))
+              ? 80.h
+              : 450.h,
           child: SingleChildScrollView(
             child: Wrap(
               clipBehavior: Clip.hardEdge,
@@ -68,10 +73,14 @@ class CocoIconsBuilder extends StatelessWidget {
             onPressed: () {
               searchController.collapseIcons();
             },
-            label: !searchController.isIconCollapsed
+            label: !(searchController.isIconCollapsed ||
+                    (cocoController.queryResults.isNotEmpty ||
+                        cocoController.state != CocoState.idle))
                 ? const CustomText('Collapse Icons', size: 12)
                 : const CustomText('Expand Icons', size: 12),
-            icon: !searchController.isIconCollapsed
+            icon: !(searchController.isIconCollapsed ||
+                    (cocoController.queryResults.isNotEmpty ||
+                        cocoController.state != CocoState.idle))
                 ? const Icon(
                     Icons.arrow_drop_up,
                     color: Colors.purple,

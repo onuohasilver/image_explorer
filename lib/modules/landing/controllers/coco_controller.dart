@@ -1,8 +1,10 @@
 import 'dart:developer';
 
-import 'package:collection/collection.dart';
+import 'package:collection/src/comparators.dart';
 import 'package:flutter/material.dart';
+import 'package:image_explorer/modules/landing/controllers/coco_states.dart';
 import 'package:image_explorer/modules/landing/models/models.dart';
+import 'package:image_explorer/modules/landing/models/result_model.dart';
 import 'package:image_explorer/services/coco_service/coco_service_impl.dart';
 
 class CocoController extends ChangeNotifier {
@@ -10,13 +12,20 @@ class CocoController extends ChangeNotifier {
 
   final CocoServiceImpl _cocoService = CocoServiceImpl();
   final List<CategoryModel> _categories = [];
-  final List<String> _imageResponse = [];
-  
+
+  final List<ResultModel> _queryResult = [];
 
   List<CategoryModel> get categories => _categories;
-  List<String> get imageResponse => _imageResponse;
+
+  List<ResultModel> get queryResults => _queryResult;
+
+  CocoState state = CocoState.idle;
 
   Future query(List<String> categoryIds) async {
+    _queryResult.clear();
+    log('Query Started');
+    state = CocoState.loading;
+    notifyListeners();
     try {
       List imagesByCategory = await _cocoService.getImagesByCats(categoryIds);
       List imageCaptions =
@@ -24,13 +33,35 @@ class CocoController extends ChangeNotifier {
       List imageSegmentations =
           await _cocoService.getImageSegmentations(imagesByCategory);
       List imageResults = await _cocoService.getImageResults(imagesByCategory);
+
+      // log(imageSegmentations.toString());
+      for (var image in imagesByCategory) {
+        _queryResult.add(
+          ResultModel(
+              segmentation: imageSegmentations
+                  .where((element) => element['image_id'] == image)
+                  .toList(),
+              captions: imageCaptions
+                  .where((element) => element['image_id'] == image)
+                  .toList(),
+              imageID: image,
+              imageUrl: imageResults.firstWhere(
+                  (element) => element['id'] == image,
+                  orElse: () => {'coco_url': ''})['coco_url']),
+        );
+      }
+      log(_queryResult.first.toString());
+      state = CocoState.idle;
+      notifyListeners();
       print([
         imagesByCategory.length,
         imageCaptions.length,
-        imageSegmentations.length,
-        imageResults.length
+        // imageSegmentations.length,
+        // imageResults.length
       ]);
     } catch (e) {
+      state = CocoState.error;
+      log(e.toString());
       log('An error occured, try again');
     }
   }
