@@ -20,7 +20,7 @@ class Network {
                 "accept": "application/json",
               },
               body: jsonEncode(body));
-      log(response.body);
+      // log(response.body);
       if ([201, 200].contains(response.statusCode)) return response;
       throw (CustomResponse(false, jsonDecode(response.body)['message']));
     } on SocketException {

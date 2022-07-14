@@ -11,38 +11,38 @@ class CocoController extends ChangeNotifier {
   final CocoServiceImpl _cocoService = CocoServiceImpl();
   final List<CategoryModel> _categories = [];
   final List<String> _imageResponse = [];
-  // final List<String> _categoryID = [];
+  
 
   List<CategoryModel> get categories => _categories;
   List<String> get imageResponse => _imageResponse;
 
-  /// Query the Endpoint to receive the Images
-  Future queryImages(List categoryIds) async {
+  Future query(List<String> categoryIds) async {
     try {
-      List response = await _cocoService.getImageResults(categoryIds);
-      for (var element in response) {
-        _imageResponse.add(element['coco_url']);
-      }
-      log(_imageResponse.toString());
+      List imagesByCategory = await _cocoService.getImagesByCats(categoryIds);
+      List imageCaptions =
+          await _cocoService.getImageCaptions(imagesByCategory);
+      List imageSegmentations =
+          await _cocoService.getImageSegmentations(imagesByCategory);
+      List imageResults = await _cocoService.getImageResults(imagesByCategory);
+      print([
+        imagesByCategory.length,
+        imageCaptions.length,
+        imageSegmentations.length,
+        imageResults.length
+      ]);
     } catch (e) {
-      log(e.toString());
+      log('An error occured, try again');
     }
-    notifyListeners();
   }
 
-  Future queryImageCaptions(List categoryIds) async {
-    try {
-      _cocoService.getImageResults(categoryIds);
-    } catch (e) {
-      log(e.toString());
-    }
-  }
+  Future _paginateQuery() async {}
 
   Future getCategories() async {
     log("get categories logger");
     if (_categories.isEmpty) {
       try {
         Map result = await _cocoService.getCategories();
+
         List<String> catNames = result['catToId']
             .replaceAll('[', '')
             .replaceAll(']', '')
@@ -57,8 +57,6 @@ class CocoController extends ChangeNotifier {
             'id': element.split(":").last.trim()
           }));
         }
-        // categoryID.sort(compareNatural);
-        log(categories.toString());
 
         notifyListeners();
       } catch (e) {

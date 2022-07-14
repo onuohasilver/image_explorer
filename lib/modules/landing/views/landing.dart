@@ -28,57 +28,57 @@ class _LandingState extends State<Landing> {
           builder: (context, _) {
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const CustomText("Coco Explorer",
-                      size: 20, weight: FontWeight.bold),
-                  const YSpace(20),
-                  const CustomText(
-                      'COCO 2017 train/val browser (123,287 images, 886,284 instances). Crowd labels not shown.',
-                      size: 14,
-                      height: 1.3,
-                      color: Colors.grey),
-                  const YSpace(10),
-                  const CocoIconsBuilder(),
-                  const YSpace(10),
-                  const SearchBuilder(),
-                  const YSpace(5),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                        style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.purple)),
-                        onPressed: () => cocoController.queryImages([
-                          
-                        ]),
-                        child: const Text("Search")),
-                  ),
-                  const YSpace(5),
-                  if (cocoController.imageResponse.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomText(
-                          "${cocoController.imageResponse.length} results found",
-                          size: 12,
-                          color: Colors.grey,
-                        ),
-                        const YSpace(12),
-                        Container(
-                          child: CachedNetworkImage(
-                            imageUrl: cocoController.imageResponse.first,
-                            // width: 70.h,
-                            // height: 70.h,
-                            placeholder: (context, url) => Container(),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const CustomText("Coco Explorer",
+                        size: 20, weight: FontWeight.bold),
+                    const YSpace(20),
+                    const CustomText(
+                        'COCO 2017 train/val browser (123,287 images, 886,284 instances). Crowd labels not shown.',
+                        size: 14,
+                        height: 1.3,
+                        color: Colors.grey),
+                    const YSpace(10),
+                    const CocoIconsBuilder(),
+                    const YSpace(10),
+                    const SearchBuilder(),
+                    const YSpace(5),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.purple)),
+                          onPressed: () => cocoController.query(["8", "9"]),
+                          child: const Text("Search")),
+                    ),
+                    const YSpace(5),
+                    if (cocoController.imageResponse.isNotEmpty)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomText(
+                            "${cocoController.imageResponse.length} results found",
+                            size: 12,
+                            color: Colors.grey,
                           ),
-                        ),
-                      ],
-                    )
-                ],
+                          const YSpace(12),
+                          Container(
+                            child: CachedNetworkImage(
+                              imageUrl: cocoController.imageResponse.first,
+                              // width: 70.h,
+                              // height: 70.h,
+                              placeholder: (context, url) => Container(),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error),
+                            ),
+                          ),
+                        ],
+                      )
+                  ],
+                ),
               ),
             );
           }),

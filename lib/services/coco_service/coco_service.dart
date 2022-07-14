@@ -4,7 +4,9 @@ abstract class CocoService {
   ///I can access the actual values for the category variables
   Future<Map> getCategories();
 
-  Future<List> getImageResults(List categoryIds);
+  Future<List> getImageResults(List imageIds);
 
-  // Future<Map> getImageCaptions(Ls)
+  Future<List> getImagesByCats(List<String> categoryIds);
+  Future<List> getImageCaptions(List imageIds);
+  Future<List> getImageSegmentations(List imageIds);
 }

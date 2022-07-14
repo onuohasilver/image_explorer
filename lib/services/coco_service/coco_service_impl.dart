@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 import 'package:image_explorer/core/core.dart';
@@ -26,12 +25,34 @@ class CocoServiceImpl extends CocoService {
   }
 
   @override
-  Future<List> getImageResults(List categoryIds) async {
-    http.Response response = await network.post(Api.imageRequests, body: {
-      'querytype': 'getImages',
-      'image_ids': ["65604"]
-    });
-    log(response.body);
+  Future<List> getImageResults(List imageIds) async {
+    http.Response response = await network.post(Api.imageRequests,
+        body: {'querytype': 'getImages', 'image_ids': imageIds});
+    // log(response.body);
+    return jsonDecode(response.body);
+  }
+
+  @override
+  Future<List> getImageCaptions(List imageIds) async {
+    http.Response response = await network.post(Api.imageRequests,
+        body: {'querytype': 'getCaptions', 'image_ids': imageIds});
+    // log(response.body);
+    return jsonDecode(response.body);
+  }
+
+  @override
+  Future<List> getImageSegmentations(List imageIds) async {
+    http.Response response = await network.post(Api.imageRequests,
+        body: {'querytype': 'getInstances', 'image_ids': imageIds});
+    // log(response.body);
+    return jsonDecode(response.body);
+  }
+
+  @override
+  Future<List> getImagesByCats(List<String> categoryIds) async {
+    http.Response response = await network.post(Api.imageRequests,
+        body: {'querytype': 'getImagesByCats', 'category_ids': categoryIds});
+    // log(response.body);
     return jsonDecode(response.body);
   }
 }

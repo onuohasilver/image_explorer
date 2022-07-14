@@ -19,8 +19,8 @@ class CocoIconsBuilder extends StatelessWidget {
     return Column(
       children: [
         AnimatedContainer(
-          duration: const Duration(seconds: 1),
-          height: (searchController.isIconCollapsed) ? 130 : 500,
+          duration: const Duration(milliseconds: 100),
+          height: (searchController.isIconCollapsed) ? 130.h : 450.h,
           child: SingleChildScrollView(
             child: Wrap(
               clipBehavior: Clip.hardEdge,
@@ -73,7 +73,7 @@ class CocoIconsBuilder extends StatelessWidget {
                 : const CustomText('Expand Icons', size: 12),
             icon: !searchController.isIconCollapsed
                 ? const Icon(
-                    Icons.arrow_upward,
+                    Icons.arrow_drop_up,
                     color: Colors.purple,
                   )
                 : const Icon(
