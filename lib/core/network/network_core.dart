@@ -13,10 +13,13 @@ class Network {
   Future<http.Response> post(String url, {String? token, Map? body}) async {
     http.Client client = _client ?? http.Client();
     try {
-      http.Response response = await client.post(
-          Uri.parse(const Api.dev().host + url),
-          headers: _generateHeaders(token),
-          body: jsonEncode(body));
+      http.Response response =
+          await client.post(Uri.parse(const Api.dev().host + url),
+              headers: {
+                "content-type": "application/json; charset=UTF-8",
+                "accept": "application/json",
+              },
+              body: jsonEncode(body));
       log(response.body);
       if ([201, 200].contains(response.statusCode)) return response;
       throw (CustomResponse(false, jsonDecode(response.body)['message']));
@@ -27,12 +30,13 @@ class Network {
     }
   }
 
-  Future<http.Response> get(String url, {String? token}) async {
+  Future<http.Response> get(String url) async {
     http.Client client = _client ?? http.Client();
     try {
-      http.Response response = await client.get(
-          Uri.parse(const Api.dev().host + url),
-          headers: _generateHeaders(token));
+      http.Response response =
+          await client.get(Uri.parse(const Api.dev().host + url), headers: {
+        'Accept': '*/*',
+      });
 
       if ([201, 200].contains(response.statusCode)) return response;
       print(response.statusCode);

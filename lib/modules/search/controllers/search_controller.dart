@@ -7,7 +7,13 @@ class SearchController extends ChangeNotifier {
   TextEditingController textEditingController = TextEditingController();
 
   Set<String> results = {};
+  bool isIconCollapsed = false;
   String? searchText;
+
+  collapseIcons() {
+    isIconCollapsed = !isIconCollapsed;
+    notifyListeners();
+  }
 
   void onSearchInputChanged(String value, List<CategoryModel> categories) {
     log("Value: $value,Length ${value.length}");
@@ -96,6 +102,9 @@ class SearchController extends ChangeNotifier {
 
     log(searchResult);
     if (searchResult != "Null") addToSearchResults(searchResult.trim());
+    notifyListeners();
+    if (results.length > 4) isIconCollapsed = true;
+    if (results.length < 4) isIconCollapsed = false;
     log(results.toString());
   }
 

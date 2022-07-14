@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_explorer/modules/landing/controllers/coco_controller.dart';
@@ -42,10 +43,41 @@ class _LandingState extends State<Landing> {
                   const CocoIconsBuilder(),
                   const YSpace(10),
                   const SearchBuilder(),
-                  const YSpace(10),
-                  TextButton(
-                      onPressed: () => cocoController.getCategories(),
-                      child: const Text("Search")),
+                  const YSpace(5),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.purple)),
+                        onPressed: () => cocoController.queryImages([
+                          
+                        ]),
+                        child: const Text("Search")),
+                  ),
+                  const YSpace(5),
+                  if (cocoController.imageResponse.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomText(
+                          "${cocoController.imageResponse.length} results found",
+                          size: 12,
+                          color: Colors.grey,
+                        ),
+                        const YSpace(12),
+                        Container(
+                          child: CachedNetworkImage(
+                            imageUrl: cocoController.imageResponse.first,
+                            // width: 70.h,
+                            // height: 70.h,
+                            placeholder: (context, url) => Container(),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          ),
+                        ),
+                      ],
+                    )
                 ],
               ),
             );

@@ -10,19 +10,39 @@ class CocoController extends ChangeNotifier {
 
   final CocoServiceImpl _cocoService = CocoServiceImpl();
   final List<CategoryModel> _categories = [];
+  final List<String> _imageResponse = [];
   // final List<String> _categoryID = [];
 
   List<CategoryModel> get categories => _categories;
-  // List<String> get categoryID => _categoryID;
+  List<String> get imageResponse => _imageResponse;
+
+  /// Query the Endpoint to receive the Images
+  Future queryImages(List categoryIds) async {
+    try {
+      List response = await _cocoService.getImageResults(categoryIds);
+      for (var element in response) {
+        _imageResponse.add(element['coco_url']);
+      }
+      log(_imageResponse.toString());
+    } catch (e) {
+      log(e.toString());
+    }
+    notifyListeners();
+  }
+
+  Future queryImageCaptions(List categoryIds) async {
+    try {
+      _cocoService.getImageResults(categoryIds);
+    } catch (e) {
+      log(e.toString());
+    }
+  }
 
   Future getCategories() async {
     log("get categories logger");
     if (_categories.isEmpty) {
       try {
         Map result = await _cocoService.getCategories();
-        // String catNames = result['catToId'];
-        // print(catNames);
-
         List<String> catNames = result['catToId']
             .replaceAll('[', '')
             .replaceAll(']', '')
