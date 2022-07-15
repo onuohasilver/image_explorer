@@ -53,7 +53,7 @@ class _LandingState extends State<Landing> {
                               backgroundColor:
                                   MaterialStateProperty.all(Colors.purple)),
                           onPressed: () async {
-                            cocoController.query(searchController.results);
+                            cocoController.query(searchController);
                           },
                           child: const Text("Search")),
                     ),

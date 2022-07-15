@@ -3,8 +3,8 @@ import 'dart:developer';
 import 'package:collection/src/comparators.dart';
 import 'package:flutter/material.dart';
 import 'package:image_explorer/modules/landing/controllers/coco_states.dart';
-import 'package:image_explorer/modules/landing/models/models.dart';
 import 'package:image_explorer/modules/landing/models/result_model.dart';
+import 'package:image_explorer/modules/modules.dart';
 import 'package:image_explorer/services/coco_service/coco_service_impl.dart';
 
 class CocoController extends ChangeNotifier {
@@ -21,66 +21,72 @@ class CocoController extends ChangeNotifier {
 
   CocoState state = CocoState.idle;
 
-  Future query(Set<String> searchResult) async {
-    List<String> categoryIds = [];
-    for (String keyword in searchResult) {
-      categoryIds.add(categories
-          .firstWhere((element) =>
-              element.category.toLowerCase().trim() ==
-              keyword.toLowerCase().trim())
-          .id);
-    }
-
-    _queryResult.clear();
-    log('Query Started');
-    state = CocoState.loading;
-    notifyListeners();
-    try {
-      List imagesByCategory = await _cocoService.getImagesByCats(categoryIds);
-      List imageCaptions =
-          await _cocoService.getImageCaptions(imagesByCategory);
-      List imageSegmentations =
-          await _cocoService.getImageSegmentations(imagesByCategory);
-      List imageResults = await _cocoService.getImageResults(imagesByCategory);
-
-      for (var image in imagesByCategory) {
-        List segments = imageSegmentations
-            .where((element) => element['image_id'] == image)
-            .toList();
-
-        List<List> segmentData = [];
-        for (var data in segments) {
-          List result = [];
-          List rawData = data['segmentation']
-              .replaceAll('[', '')
-              .replaceAll(']]', '')
-              .split(',');
-          for (var element in rawData) {
-            double? val = double.tryParse(element);
-            if (val != null) result.add(val);
-          }
-          segmentData.add(result);
-        }
-
-        _queryResult.add(
-          ResultModel(
-              segmentation: segmentData,
-              captions: imageCaptions
-                  .where((element) => element['image_id'] == image)
-                  .toList(),
-              imageID: image,
-              imageUrl: imageResults.firstWhere(
-                  (element) => element['id'] == image,
-                  orElse: () => {'coco_url': ''})['coco_url']),
-        );
-      }
-      // log(_queryResult.first.toString());
+  Future query(SearchController searchController) async {
+    if (searchController.results.isEmpty) {
       state = CocoState.idle;
+    } else {
+      List<String> categoryIds = [];
+      for (String keyword in searchController.results) {
+        categoryIds.add(categories
+            .firstWhere((element) =>
+                element.category.toLowerCase().trim() ==
+                keyword.toLowerCase().trim())
+            .id);
+      }
+
+      _queryResult.clear();
+      log('Query Started');
+      state = CocoState.loading;
       notifyListeners();
-    } catch (e) {
-      state = CocoState.error;
-      log(e.toString());
-      log('An error occured, try again');
+      try {
+        List imagesByCategory = await _cocoService.getImagesByCats(categoryIds);
+        List imageCaptions =
+            await _cocoService.getImageCaptions(imagesByCategory);
+        List imageSegmentations =
+            await _cocoService.getImageSegmentations(imagesByCategory);
+        List imageResults =
+            await _cocoService.getImageResults(imagesByCategory);
+
+        for (var image in imagesByCategory) {
+          List segments = imageSegmentations
+              .where((element) => element['image_id'] == image)
+              .toList();
+
+          List<List> segmentData = [];
+          for (var data in segments) {
+            List result = [];
+            List rawData = data['segmentation']
+                .replaceAll('[', '')
+                .replaceAll(']]', '')
+                .split(',');
+            for (var element in rawData) {
+              double? val = double.tryParse(element);
+              if (val != null) result.add(val);
+            }
+            segmentData.add(result);
+          }
+
+          _queryResult.add(
+            ResultModel(
+                segmentation: segmentData,
+                captions: imageCaptions
+                    .where((element) => element['image_id'] == image)
+                    .toList(),
+                imageID: image,
+                imageUrl: imageResults.firstWhere(
+                    (element) => element['id'] == image,
+                    orElse: () => {'coco_url': ''})['coco_url']),
+          );
+        }
+        // log(_queryResult.first.toString());
+        state = CocoState.idle;
+        searchController.collapseIcons(true);
+        notifyListeners();
+      } catch (e) {
+        state = CocoState.error;
+        log(e.toString());
+        log('An error occured, try again');
+      }
     }
   }
 

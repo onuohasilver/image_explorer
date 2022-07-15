@@ -7,7 +7,6 @@ class SearchController extends ChangeNotifier {
   TextEditingController textEditingController = TextEditingController();
 
   Set<String> results = {};
-  
 
   bool isIconCollapsed = false;
   String? searchText;
@@ -17,8 +16,8 @@ class SearchController extends ChangeNotifier {
   :: Reduce the height when space is conceded to allow 
   :: better use of available screen
   */
-  collapseIcons() {
-    isIconCollapsed = !isIconCollapsed;
+  collapseIcons([bool? value]) {
+    isIconCollapsed = value ?? !isIconCollapsed;
     notifyListeners();
   }
 
