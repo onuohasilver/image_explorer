@@ -37,6 +37,7 @@ class CocoController extends ChangeNotifier {
       _queryResult.clear();
       log('Query Started');
       state = CocoState.loading;
+      searchController.collapseIcons(true);
       notifyListeners();
       try {
         List imagesByCategory = await _cocoService.getImagesByCats(categoryIds);
@@ -80,7 +81,7 @@ class CocoController extends ChangeNotifier {
         }
         // log(_queryResult.first.toString());
         state = CocoState.idle;
-        searchController.collapseIcons(true);
+
         notifyListeners();
       } catch (e) {
         state = CocoState.error;
