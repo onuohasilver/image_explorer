@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:image_explorer/modules/landing/controllers/coco_controller.dart';
 import 'package:image_explorer/modules/landing/controllers/coco_states.dart';
-import 'package:image_explorer/modules/landing/views/widgets/coco_icons_builder.dart';
-import 'package:image_explorer/modules/landing/views/widgets/search_builder.dart';
 import 'package:image_explorer/modules/landing/views/widgets/single_image_result.dart';
+import 'package:image_explorer/modules/modules.dart';
 import 'package:image_explorer/shared_components/shared_components.dart';
 import 'package:provider/provider.dart';
 
@@ -21,6 +19,7 @@ class _LandingState extends State<Landing> {
   @override
   Widget build(BuildContext context) {
     CocoController cocoController = Provider.of<CocoController>(context);
+    SearchController searchController = Provider.of<SearchController>(context);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -54,13 +53,26 @@ class _LandingState extends State<Landing> {
                               backgroundColor:
                                   MaterialStateProperty.all(Colors.purple)),
                           onPressed: () async {
-                            cocoController.query(["8", "9"]);
+                            cocoController.query(searchController.results);
                           },
                           child: const Text("Search")),
                     ),
                     const YSpace(5),
                     if (cocoController.state == CocoState.loading)
-                      const Center(child: CircularProgressIndicator()),
+                      const Center(
+                          child: CircularProgressIndicator(
+                              strokeWidth: 1.0, color: Colors.purple)),
+                    if (cocoController.queryResults.isEmpty &&
+                        (cocoController.state == CocoState.idle))
+                      const Center(
+                          child: CustomText('No results found', size: 12)),
+                    if (cocoController.state == CocoState.error)
+                      const Center(
+                        child: CustomText(
+                          'An error occured',
+                          size: 15,
+                        ),
+                      ),
                     if (cocoController.queryResults.isNotEmpty)
                       SizedBox(
                         height: 400.h,

@@ -21,7 +21,16 @@ class CocoController extends ChangeNotifier {
 
   CocoState state = CocoState.idle;
 
-  Future query(List<String> categoryIds) async {
+  Future query(Set<String> searchResult) async {
+    List<String> categoryIds = [];
+    for (String keyword in searchResult) {
+      categoryIds.add(categories
+          .firstWhere((element) =>
+              element.category.toLowerCase().trim() ==
+              keyword.toLowerCase().trim())
+          .id);
+    }
+
     _queryResult.clear();
     log('Query Started');
     state = CocoState.loading;
@@ -34,13 +43,28 @@ class CocoController extends ChangeNotifier {
           await _cocoService.getImageSegmentations(imagesByCategory);
       List imageResults = await _cocoService.getImageResults(imagesByCategory);
 
-      // log(imageSegmentations.toString());
       for (var image in imagesByCategory) {
+        List segments = imageSegmentations
+            .where((element) => element['image_id'] == image)
+            .toList();
+
+        List<List> segmentData = [];
+        for (var data in segments) {
+          List result = [];
+          List rawData = data['segmentation']
+              .replaceAll('[', '')
+              .replaceAll(']]', '')
+              .split(',');
+          for (var element in rawData) {
+            double? val = double.tryParse(element);
+            if (val != null) result.add(val);
+          }
+          segmentData.add(result);
+        }
+
         _queryResult.add(
           ResultModel(
-              segmentation: imageSegmentations
-                  .where((element) => element['image_id'] == image)
-                  .toList(),
+              segmentation: segmentData,
               captions: imageCaptions
                   .where((element) => element['image_id'] == image)
                   .toList(),
@@ -50,15 +74,9 @@ class CocoController extends ChangeNotifier {
                   orElse: () => {'coco_url': ''})['coco_url']),
         );
       }
-      log(_queryResult.first.toString());
+      // log(_queryResult.first.toString());
       state = CocoState.idle;
       notifyListeners();
-      print([
-        imagesByCategory.length,
-        imageCaptions.length,
-        // imageSegmentations.length,
-        // imageResults.length
-      ]);
     } catch (e) {
       state = CocoState.error;
       log(e.toString());
@@ -98,34 +116,3 @@ class CocoController extends ChangeNotifier {
     }
   }
 }
-
-// function renderSegms(ctx, img, data) {
-//   var cats = Object.keys(data);
-//   for (var i = 0; i < cats.length; i++) {
-//     // set color for each object
-//     var segms = data[cats[i]];
-//     for (var j = 0; j < segms.length; j++) {
-//       var r = Math.floor(Math.random() * 255);
-//       var g = Math.floor(Math.random() * 255);
-//       var b = Math.floor(Math.random() * 255);
-//       ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',0.7)';
-//       var polys = JSON.parse(segms[j]['segmentation']);
-//       // loop over all polygons
-//       for (var k = 0; k < polys.length; k++) {
-//         var poly = polys[k];
-//         ctx.beginPath();
-//         ctx.moveTo(poly[0], poly[1]);
-//         for (m = 0; m < poly.length - 2; m += 2) {
-//           // let's draw!!!!
-//           ctx.lineTo(poly[m + 2], poly[m + 3]);
-//         }
-//         ctx.lineTo(poly[0], poly[1]);
-//         ctx.lineWidth = 3;
-//         ctx.closePath();
-//         ctx.fill();
-//         ctx.strokeStyle = 'black';
-//         ctx.stroke();
-//       }
-//     }
-//   }
-// }

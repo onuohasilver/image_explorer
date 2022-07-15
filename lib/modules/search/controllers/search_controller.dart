@@ -7,6 +7,8 @@ class SearchController extends ChangeNotifier {
   TextEditingController textEditingController = TextEditingController();
 
   Set<String> results = {};
+  
+
   bool isIconCollapsed = false;
   String? searchText;
 
